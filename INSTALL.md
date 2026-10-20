@@ -1,5 +1,9 @@
 # 安装教程（Windows）
 
+> ⚠️ **本包不含 qq-bridge 本体**（它是第三方项目：https://github.com/Derpyu520/qq-bridge ，MIT）。
+> 先用它自己的 README 把桥接装通、能收发 QQ 消息，再回来打本包的补丁。
+> 依赖清单与版本见 [`NOTICE.md`](NOTICE.md) 的「你需要自己准备的东西」。
+
 > 目标：在一台新机器上，把"小鲸鱼"这套能力装起来。
 > 全程假设你**已经**有一份能正常收发 QQ 消息的 DSH + qq-bridge。
 

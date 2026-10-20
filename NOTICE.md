@@ -36,3 +36,35 @@
 ## 使用后果
 
 用你自己的账号做操作，后果自负。撞到平台风控（验证码/限流/判刷屏）请**立刻停手**。
+---
+
+## 你需要自己准备的东西（依赖，**不在本包内**）
+
+| 组件 | 地址 | 我用过的版本 | 说明 |
+|---|---|---|---|
+| **DeepSeek Harness (DSH)** | 官方安装包 | `0.2.0-rc.2`（File 0.2.0-rc.2 / Product 0.2.0.0） | 宿主，没有它一切不成立 |
+| **qq-bridge** ★ | https://github.com/Derpyu520/qq-bridge | **`0.2.0-r3`** | **本包的两个补丁是给它打的**；换版本锚点可能对不上 |
+| **SnowLuma**（QQ 网关） | npm `@snowluma/sdk` / `@snowluma/mcp` ^1.14.20 | 1.14.x | 桥接通过它跟 QQ 说话（OneBot v11） |
+| **NapCatQQ** | https://github.com/NapNeko/NapCatQQ | `4.18.38`（app_name `NapCat.Onebot`，protocol v11） | 跑在 QQ 进程里，提供 3000/3001 |
+| **dsh-bili-whale**（可选） | https://github.com/Alterssss/dsh-bili-whale | `0.2.0` | 养鱼（自己刷 B站）；不装也能用其它功能 |
+| **Node.js** | https://nodejs.org | ≥ `22.13.0`（实测 22.21.1） | 桥接与脚本都靠它 |
+| **Git** | https://git-scm.com | 26.x | 拉仓库 / 推 GitHub |
+| **Python**（可选） | https://python.org | 3.12 | 只有跑 TTS（`speak-server.py`）才需要 |
+
+> ⭐ **qq-bridge 是本包最重要的前置**：本包只提供"给它打的补丁 + 周边脚本"。
+> 先把它装通（能收发 QQ 消息），再回来打补丁。
+
+### 装 qq-bridge
+
+```powershell
+git clone https://github.com/Derpyu520/qq-bridge.git D:\dsh\qq-bridge
+cd D:\dsh\qq-bridge
+npm install          # 会跑 postinstall（给 SnowLuma SDK 打补丁）
+# 按它自己的 README 配 config.json：consolePort / allow.groups / snowluma.wsUrl 等
+npm start
+```
+
+**打补丁前先确认它能独立工作**：控制台能打开、`/api/status` 返回 `connected: true`。
+
+> 版本不符时补丁脚本会报「锚点未找到」而退出（不会写坏文件），
+> 此时按 `bridge/PATCHES.md` 里的锚点说明手动调整即可。

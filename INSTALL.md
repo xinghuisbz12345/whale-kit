@@ -289,3 +289,53 @@ powershell ... -File .\apply-image-patch.ps1 -Revert
 powershell ... -File .\apply-tts-patch.ps1   -Revert
 # 人格：从 agent.cordis.yml.bak-* 还原，再重编 patch + 重启 DSH
 ```
+
+---
+
+## 附录 A：需要改的绝对路径清单
+
+这些脚本里带着**我这台机器**的路径，换机器必须改。建议先在 PowerShell 里批量替换：
+
+```powershell
+# 在 kit 目录下执行；把两个旧前缀换成你的新路径
+$old1 = 'D:\Backup\Documents\deepseek-harness\default-workspace'
+$old2 = 'D:\Backup\Documents\deepseek-harness\qq-bridge'
+$new1 = 'D:\dsh\workspace'
+$new2 = 'D:\dsh\qq-bridge'
+Get-ChildItem -Recurse -File -Include *.ps1,*.mjs,*.py |
+  ForEach-Object {
+    $t = [IO.File]::ReadAllText($_.FullName, [Text.Encoding]::UTF8)
+    $t = $t.Replace($old1, $new1).Replace($old2, $new2)
+    [IO.File]::WriteAllText($_.FullName, $t, (New-Object Text.UTF8Encoding($true)))
+  }
+```
+
+| 文件 | 要改什么 |
+|---|---|
+| `pipeline/start-all.ps1` | `$Workspace`、`$gsvRuntime`（ffmpeg/ffprobe 所在目录）、内部调用的脚本绝对路径 |
+| `pipeline/start-tts.ps1` | `$AudioDir`、speak-server.py 路径、python 解释器路径、`COSYVOICE_DIR` |
+| `pipeline/start-bridge-with-tts.ps1` | `$BridgeDir`、`$Workspace` |
+| `pipeline/watch-bridge.ps1` | `$Workspace`、`console-token` 路径（用于 connected 检查） |
+| `pipeline/restart-dsh-with-voice.ps1` | `$WS`、`$BRIDGE`、`$DSH_EXE`（DSH 安装路径） |
+| `pipeline/apply-image-patch.ps1` | `-BridgeDir` 默认值 |
+| `pipeline/apply-tts-patch.ps1` | `-BridgeDir` 默认值 + 注释里的示例路径 |
+| `pipeline/whale-to-qq.ps1` | `-BridgeDir`、`-Workspace`、`$python`（用于读 token 的 Python） |
+| `pipeline/backfill-chat.mjs` | `STATE`（social-v2.json 路径） |
+| `pipeline/sync-persona-to-v2.mjs` | `BASE`（agent-presets 目录） |
+| `pipeline/speak-server.py` | `GSV_ROOT`、`GSV_VOICES`（每个音色的权重/参考音频/台词）、`DEFAULT_ROOT`、`DEFAULT_AUDIO` |
+| `pipeline/mem.mjs` | 不需要改（用脚本自身所在目录定位 `memory/`） |
+
+> `speak-server.py` 里 `GSV_VOICES` 的 `prompt` 字段必须是**参考音频里那句话的逐字稿**，
+> 对不上音质会明显变差（这是 GPT-SoVITS 的硬要求）。
+
+## 附录 B：最小可用 vs 完整能力
+
+想少踩坑就分阶段上，每阶段都能独立跑：
+
+| 阶段 | 装什么 | 得到什么 |
+|---|---|---|
+| 1 | 桥接补丁（发图）+ 人格规则 | 她会看 B站、发图、按人格说话 |
+| 2 | + 语音补丁 + speak-server（只用说话引擎） | 她会发语音 |
+| 3 | + GPT-SoVITS + 音色模式 | 她能换角色声线 |
+| 4 | + 记忆库 + 群归档 | 她记得住人、翻得到旧事 |
+| 5 | + dsh-bili-whale + whale-to-qq | 她自己按生物钟刷 B站并发群 |

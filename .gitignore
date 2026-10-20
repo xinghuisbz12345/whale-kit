@@ -1,0 +1,25 @@
+# 凭据 / 状态
+*credential*.json
+state/
+*console-token*
+*.bak
+*.bak-*
+# 生成物
+audio/
+*.wav
+*.mp3
+memory/group-log/
+memory/index.jsonl
+logs/
+*.log
+*.zstd
+# 模型
+GPT-SoVITS*/
+*.ckpt
+*.pth
+# 系统
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+Thumbs.db
